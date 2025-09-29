@@ -5,11 +5,16 @@ on:
     - cron: "0 * * * *"
   workflow_dispatch:
 
+permissions:
+  contents: write   # erlaubt commit/push
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          persist-credentials: true
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -19,4 +24,14 @@ jobs:
       - name: Run script
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          FORCE_ANNOUNCE_FIRST_RUN: ${{ vars.FORCE_ANNOUNCE_FIRST_RUN }}
         run: python bequiet_tracker_level.py
+      - name: Commit state.json (if changed)
+        run: |
+          if [ -f state.json ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add state.json || true
+            git diff --staged --quiet || git commit -m "Update state.json"
+            git push
+          fi
