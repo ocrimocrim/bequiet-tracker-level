@@ -2,7 +2,7 @@ name: Run Tracker
 
 on:
   schedule:
-    - cron: "0 * * * *"   # jede volle Stunde (UTC)
+    - cron: "0 */2 * * *"   # alle 2 Stunden (UTC)
   workflow_dispatch: {}
 
 permissions:
@@ -33,8 +33,8 @@ jobs:
       - name: Run script
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          FORCE_ANNOUNCE_FIRST_RUN: "false"   # nach dem ersten Run AUS
-          SEND_TEST_MESSAGE: "false"          # keine Testmeldungen
+          FORCE_ANNOUNCE_FIRST_RUN: "false"
+          SEND_TEST_MESSAGE: "false"
         run: python bequiet_tracker_level.py
 
       - name: Commit state.json (if changed)
