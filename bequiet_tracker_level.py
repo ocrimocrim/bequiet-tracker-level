@@ -70,12 +70,17 @@ def main():
         current[name] = level
 
         prev = state["levels"].get(name)
-        if prev is None:
-            state["levels"][name] = level
-            continue
-        if level > prev:
-            post_to_discord(name, level)
-            state["levels"][name] = level
+force_first = os.getenv("FORCE_ANNOUNCE_FIRST_RUN", "").lower() == "true"
+
+if prev is None:
+    if force_first:
+        post_to_discord(name, level)  # einmalig beim allerersten Lauf announcen
+    state["levels"][name] = level
+    continue
+
+if level > prev:
+    post_to_discord(name, level)
+    state["levels"][name] = level
 
     for missing in list(state["levels"].keys()):
         if missing not in current:
