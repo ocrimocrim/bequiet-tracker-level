@@ -2,11 +2,11 @@ name: Run Tracker
 
 on:
   schedule:
-    - cron: "0 * * * *"
+    - cron: "0 * * * *"   # jede volle Stunde
   workflow_dispatch:
 
 permissions:
-  contents: write   # erlaubt commit/push
+  contents: write   # erlaubt commit/push von state.json
 
 jobs:
   build:
@@ -15,17 +15,22 @@ jobs:
       - uses: actions/checkout@v3
         with:
           persist-credentials: true
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
+
       - name: Install dependencies
         run: pip install -r requirements.txt
+
       - name: Run script
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          FORCE_ANNOUNCE_FIRST_RUN: "true"
+          FORCE_ANNOUNCE_FIRST_RUN: "true"   # sorgt für 1x Meldung der aktuellen Spieler
+          SEND_TEST_MESSAGE: "true"          # zusätzliche Test-Nachricht „✅ Testlauf erfolgreich“
         run: python bequiet_tracker_level.py
+
       - name: Commit state.json (if changed)
         run: |
           if [ -f state.json ]; then
