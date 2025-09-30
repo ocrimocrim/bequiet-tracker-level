@@ -1,161 +1,197 @@
-#!/usr/bin/env python3
-import os, json, time, sys, re, random
+# bequiet_tracker_level.py
+import os, sys, json, time
 from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 
-# ---------- Konfiguration ----------
-URL = "https://pr-underworld.com/website/ranking/"   # Level-Ranking-Seite (zeigt Top 100)
-GUILD_NAME = "beQuiet"
+# --------- Einstellungen ---------
+GUILD_NAME   = "beQuiet"
+RANKING_URL  = "https://pr-underworld.com/website/ranking/"
+HOME_URL     = "https://pr-underworld.com/website/"
+TIMEOUT      = 20
 
-STATE_FILE   = Path("state.json")
-MEMBERS_FILE = Path("bequiet_members.txt")
-TIMEOUT = 20
-WEBHOOK = os.getenv("DISCORD_WEBHOOK_URL")
+STATE_FILE   = Path("state_levels.json")       # speichert bekannte Level
+MEMBERS_FILE = Path("bequiet_members.txt")     # feste Mitgliedsliste (eine Zeile pro Name)
 
-LEVEL_MESSAGES = [
-    "Gz on leveling up, bro! Even the panther in Horizon tavern is buying drinks tonight!",
-    "Big gz! From Laksy harbor to Katan rooftops, every Blue Pixie is dancing for your ding!",
-    "Congrats, mate! Even Cube dungeon mobs stopped KS’ing for a sec to clap for your level up.",
-    "Sweet ding! The Yeti in Crystal Valley whispered me: 'that guy deserves +10 cards now'.",
-    "Gz, hero! The White Dragon in Lost Mines just ragequit because you outleveled his ego.",
-    "Level up hype! Even Admin InkDevil paused banning cheaters on the private server war to salute you.",
-    "Massive gz! Horizon guards told me your level up just became the new main quest.",
-    "Yo, gz! The Tortus and the Wolf from your pet bag started a moshpit in front of Laksy fountain.",
-    "Congrats! Even the boss in Temple of the Ancients is begging to be in your party now.",
-    "Gz for the ding! The Rondo marketplace doubled the price of Soul Stones after hearing your name.",
-    "Поздравляю с апом, брат! Даже скелеты из Temple of Lost Souls начали спорить, кто будет тебе носить сумку, а пантера из Хорайзона уже заказала водку на весь сервер!"
-]
+WEBHOOK      = os.getenv("DISCORD_WEBHOOK_URL", "").strip()
 
-# ---------- Helpers: State ----------
+# --------- Helpers: IO / Discord ---------
+def fetch_html(url: str) -> str:
+    r = requests.get(url, headers={"User-Agent": "beQuiet level tracker"}, timeout=TIMEOUT)
+    r.raise_for_status()
+    return r.text
+
+def post_to_discord(content: str):
+    if not WEBHOOK:
+        print("No DISCORD_WEBHOOK_URL set; skip posting", file=sys.stderr)
+        return
+    r = requests.post(WEBHOOK, json={"content": content}, timeout=15)
+    try:
+        r.raise_for_status()
+    except Exception as e:
+        print(f"Discord error: {e} {getattr(r, 'text', '')}", file=sys.stderr)
+
 def load_state():
     if STATE_FILE.exists():
-        return json.loads(STATE_FILE.read_text(encoding="utf-8"))
-    return {"levels": {}, "last_run_ts": 0}
+        try:
+            return json.loads(STATE_FILE.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    return {"levels": {}}  # name -> last_known_level (int)
 
 def save_state(state):
     STATE_FILE.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
 
-# ---------- Helpers: Mitgliederliste ----------
 def load_members() -> list[str]:
     if not MEMBERS_FILE.exists():
         return []
-    names = [line.strip() for line in MEMBERS_FILE.read_text(encoding="utf-8").splitlines()]
-    names = [n for n in names if n]
-    # Duplikate entfernen, Reihenfolge stabil halten
-    seen, uniq = set(), []
-    for n in names:
-        if n not in seen:
-            seen.add(n)
-            uniq.append(n)
-    return uniq
+    names = []
+    for line in MEMBERS_FILE.read_text(encoding="utf-8").splitlines():
+        n = line.strip()
+        if n:
+            names.append(n)
+    return names
 
-def save_members(names: list[str]) -> None:
-    uniq_sorted = sorted(set(n.strip() for n in names if n.strip()), key=str.lower)
-    MEMBERS_FILE.write_text("\n".join(uniq_sorted) + ("\n" if uniq_sorted else ""), encoding="utf-8")
+def save_members(names: set[str]):
+    # stabil sortieren, Groß/Kleinschreibung erhalten, Duplicates case-insensiv filtern
+    seen_ci = set()
+    out = []
+    for n in sorted(names, key=lambda s: s.lower()):
+        key = n.lower()
+        if key in seen_ci:  # Duplikate vermeiden
+            continue
+        seen_ci.add(key)
+        out.append(n)
+    MEMBERS_FILE.write_text("\n".join(out) + "\n", encoding="utf-8")
 
-# ---------- Discord ----------
-def post_to_discord(player, level):
-    if not WEBHOOK:
-        print("Webhook fehlt. Setze Secret DISCORD_WEBHOOK_URL", file=sys.stderr)
-        return
-    msg = random.choice(LEVEL_MESSAGES)
-    payload = {"content": f"Gratulations {player}. You reached level {level}.\n{msg}"}
-    r = requests.post(WEBHOOK, json=payload, timeout=10)
-    r.raise_for_status()
+# --------- Parsen: gemeinsame Utilities ---------
+def _is_bequiet(text: str) -> bool:
+    return GUILD_NAME.lower() in text.lower()
 
-# ---------- Parsing ----------
-def find_netherworld_table(soup):
-    # Überschrift "Netherworld" -> nächste Tabelle
-    for h in soup.find_all(["h1","h2","h3","h4","h5","h6"]):
-        if h.get_text(strip=True).lower().startswith("netherworld"):
-            return h.find_next("table")
+def _find_netherworld_table(soup: BeautifulSoup):
+    # Suche nach einer Überschrift mit "Netherworld" und nimm die nächste Tabelle
+    for tag in soup.find_all(["h3", "h4", "h5", "h6"]):
+        if "netherworld" in tag.get_text(strip=True).lower():
+            tbl = tag.find_next("table")
+            if tbl:
+                return tbl
+    # Fallback: nimm die zweite Tabelle (rechte Spalte), falls Struktur abweicht
+    tables = soup.find_all("table")
+    if len(tables) >= 2:
+        return tables[-1]
     return None
 
-def extract_rows(table):
-    """
-    Ranking-Spalten (Netherworld):
-      # | Online | Name | Level | Job | Exp % | Guild
-    -> Name = tds[2], Level = tds[3], Guild = tds[6]
-    """
-    rows = []
+# --------- Parsen: /ranking/ (Spalten: Online | Name | Level | Job | Exp% | Guild) ---------
+def scrape_ranking_bequiet() -> dict[str, int]:
+    html = fetch_html(RANKING_URL)
+    soup = BeautifulSoup(html, "html.parser")
+    table = _find_netherworld_table(soup)
+    if not table:
+        print("Ranking: Netherworld table not found", file=sys.stderr)
+        return {}
+    res: dict[str, int] = {}
     tbody = table.find("tbody")
     if not tbody:
-        return rows
+        return res
     for tr in tbody.find_all("tr"):
         tds = tr.find_all("td")
-        if len(tds) < 7:
+        if len(tds) < 6:
             continue
-        name = tds[2].get_text(strip=True)
-        level_txt = tds[3].get_text(strip=True)
-        guild_txt = tds[6].get_text(" ", strip=True)
+        name  = tds[1].get_text(strip=True)
+        level = tds[2].get_text(strip=True)
+        guild = tds[5].get_text(" ", strip=True)
+        if not name:
+            continue
         try:
-            level = int(re.sub(r"[^\d]", "", level_txt))
-        except ValueError:
+            lvl = int(level)
+        except Exception:
             continue
-        rows.append({"name": name, "level": level, "guild": guild_txt})
-    return rows
+        if _is_bequiet(guild):
+            res[name] = lvl
+    return res
 
-# ---------- Main ----------
+# --------- Parsen: / (Spalten: # | Name | Level | Job | Guild) ---------
+def scrape_home_bequiet() -> dict[str, int]:
+    html = fetch_html(HOME_URL)
+    soup = BeautifulSoup(html, "html.parser")
+    table = _find_netherworld_table(soup)
+    if not table:
+        print("Home: Netherworld table not found", file=sys.stderr)
+        return {}
+    res: dict[str, int] = {}
+    tbody = table.find("tbody")
+    if not tbody:
+        return res
+    for tr in tbody.find_all("tr"):
+        # Zeilenstruktur: <th scope=row>#</th> <td>Name</td> <td>Level</td> <td><img></td> <td><img> beQuiet</td>
+        tds = tr.find_all("td")
+        if len(tds) < 4:
+            continue
+        name  = tds[0].get_text(strip=True)
+        level = tds[1].get_text(strip=True)
+        guild = tds[3].get_text(" ", strip=True)
+        if not name:
+            continue
+        try:
+            lvl = int(level)
+        except Exception:
+            continue
+        if _is_bequiet(guild):
+            res[name] = lvl
+    return res
+
+# --------- Merge & Posting ---------
+def merge_levels(*sources: dict[str, int]) -> dict[str, int]:
+    merged: dict[str, int] = {}
+    for src in sources:
+        for n, lvl in src.items():
+            # wenn zwei Quellen unterschiedliche Level liefern, nimm den höheren (sollte selten vorkommen)
+            merged[n] = max(lvl, merged.get(n, 0))
+    return merged
+
 def main():
     state = load_state()
-    members = load_members()
-    member_set = set(members)
+    known_levels: dict[str, int] = state.get("levels", {})
 
-    r = requests.get(URL, timeout=TIMEOUT, headers={"User-Agent": "beQuiet level tracker"})
-    r.raise_for_status()
-    soup = BeautifulSoup(r.text, "html.parser")
+    # 1) Scrapen beider Quellen
+    levels_ranking = scrape_ranking_bequiet()
+    levels_home    = scrape_home_bequiet()
+    current_levels = merge_levels(levels_ranking, levels_home)
 
-    table = find_netherworld_table(soup)
-    if not table:
-        print("Netherworld Tabelle nicht gefunden", file=sys.stderr)
-        return
+    # 2) Mitgliederliste laden/erweitern
+    members = set(load_members())
+    members |= set(current_levels.keys())  # neue beQuiet-Namen ergänzen
+    if members:
+        save_members(members)
 
-    # Alle beQuiet-Spieler auf der Ranking-Seite (Top 100) auslesen
-    current_seen = {}
-    newly_found_for_list = []
-    for row in extract_rows(table):
-        if GUILD_NAME.lower() not in row["guild"].lower():
-            continue
-        name = row["name"]
-        level = row["level"]
-        current_seen[name] = level
-        # Falls nicht in Liste -> zur Liste ergänzen
-        if name not in member_set:
-            member_set.add(name)
-            newly_found_for_list.append(name)
+    # 3) Level-Ups ermitteln (nur für Spieler, die wir heute gesehen haben)
+    ups = []
+    for name, new_lvl in current_levels.items():
+        old_lvl = int(known_levels.get(name, 0) or 0)
+        if new_lvl > old_lvl:
+            ups.append((name, old_lvl, new_lvl))
+            known_levels[name] = new_lvl  # State updaten
 
-        # Level-Änderungen prüfen
-        prev = state["levels"].get(name)
-        force_first = os.getenv("FORCE_ANNOUNCE_FIRST_RUN", "").lower() == "true"
-        if prev is None:
-            if force_first:
-                post_to_discord(name, level)
-            state["levels"][name] = level
-        elif level > prev:
-            post_to_discord(name, level)
-            state["levels"][name] = level
-
-    # Wichtig: NICHT mehr alles löschen, was heute nicht im Ranking war.
-    # Die Top-100 filtert; Mitglieder außerhalb der Top-100 sollen im State bleiben.
-    # Optional: wer gar kein beQuiet mehr ist, könntest du künftig via members.txt steuern.
-
-    # Alle Namen aus der Mitgliederliste sicher im State anlegen
-    for n in member_set:
-        state["levels"].setdefault(n, None)
-
-    # Neue Mitglieder-Namen ins File schreiben (sortiert, dedupliziert)
-    if newly_found_for_list or (set(members) != member_set):
-        save_members(list(member_set))
-        if newly_found_for_list:
-            print("Zur Mitgliederliste hinzugefügt: " + ", ".join(sorted(newly_found_for_list, key=str.lower)))
-
-    state["last_run_ts"] = int(time.time())
+    # 4) State speichern (auch wenn keine Ups – damit neue Namen/Levels persistieren)
+    state["levels"] = known_levels
     save_state(state)
+
+    # 5) Discord-Post nur bei Level-Ups
+    if ups:
+        ups.sort(key=lambda x: (x[2] - x[1], x[2], x[0].lower()), reverse=True)
+        today = time.strftime("%Y-%m-%d")
+        lines = [f"**beQuiet – Level-Ups** ({today})"]
+        for name, old_lvl, new_lvl in ups:
+            arrow = f"{old_lvl} → {new_lvl}" if old_lvl > 0 else f"neu erfasst: {new_lvl}"
+            lines.append(f"• **{name}** — {arrow}")
+        content = "\n".join(lines)
+        post_to_discord(content)
+    else:
+        print("No level-ups today.")
 
 if __name__ == "__main__":
     try:
         main()
     except Exception as e:
-        print(f"Fehler: {e}", file=sys.stderr)
+        print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
