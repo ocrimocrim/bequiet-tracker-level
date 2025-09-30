@@ -9,7 +9,7 @@ RANKING_URL  = "https://pr-underworld.com/website/ranking/"
 HOME_URL     = "https://pr-underworld.com/website/"
 TIMEOUT      = 20
 
-STATE_FILE   = Path("state_levels.json")       # speichert bekannte Level
+STATE_FILE   = Path("state.json")       # speichert bekannte Level
 MEMBERS_FILE = Path("bequiet_members.txt")     # feste Mitgliedsliste (eine Zeile pro Name)
 
 WEBHOOK      = os.getenv("DISCORD_WEBHOOK_URL", "").strip()
