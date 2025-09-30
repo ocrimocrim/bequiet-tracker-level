@@ -173,4 +173,69 @@ def scrape_home_bequiet() -> dict[str, int]:
                 name = tds[lvl_idx - 1].get_text(strip=True)
             guild_text = tds[-1].get_text(" ", strip=True)
 
-        if not name
+        if not name or not _digits_only(level_text):
+            continue
+        if not _is_bequiet(guild_text):
+            continue
+
+        res[name] = int(level_text)
+
+    return res
+
+# --------- Merge & Posting ---------
+def merge_levels(*sources: dict[str, int]) -> dict[str, int]:
+    merged: dict[str, int] = {}
+    for src in sources:
+        for n, lvl in src.items():
+            merged[n] = max(lvl, merged.get(n, 0))
+    return merged
+
+def main():
+    state = load_state()
+    known_levels: dict[str, int] = state.get("levels", {})
+
+    # 1) Scrapen beider Quellen
+    levels_ranking = scrape_ranking_bequiet()
+    levels_home    = scrape_home_bequiet()
+    current_levels = merge_levels(levels_ranking, levels_home)
+
+    # 2) Mitgliederliste erweitern
+    members = set(load_members())
+    members |= set(current_levels.keys())
+    if members:
+        save_members(members)
+
+    # 3) Level-Ups ermitteln
+    ups = []
+    for name, new_lvl in current_levels.items():
+        old_raw = known_levels.get(name, 0)
+        try:
+            old_lvl = int(old_raw or 0)  # None -> 0
+        except Exception:
+            old_lvl = 0
+        if new_lvl > old_lvl:
+            ups.append((name, old_lvl, new_lvl))
+            known_levels[name] = new_lvl
+
+    # 4) State speichern
+    state["levels"] = known_levels
+    save_state(state)
+
+    # 5) Discord-Post nur bei Level-Ups
+    if ups:
+        ups.sort(key=lambda x: (x[2] - x[1], x[2], x[0].lower()), reverse=True)
+        today = time.strftime("%Y-%m-%d")
+        lines = [f"**beQuiet – Level-Ups** ({today})"]
+        for name, old_lvl, new_lvl in ups:
+            arrow = f"{old_lvl} → {new_lvl}" if old_lvl > 0 else f"neu erfasst: {new_lvl}"
+            lines.append(f"• **{name}** — {arrow}")
+        post_to_discord("\n".join(lines))
+    else:
+        print("No level-ups today.")
+
+if __name__ == "__main__":
+    try:
+        main()
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
