@@ -1,19 +1,19 @@
-name: Run Tracker
+name: beQuiet Level Tracker
 
 on:
   schedule:
-    - cron: "0 */2 * * *"   # alle 2 Stunden (UTC)
-  workflow_dispatch: {}
+    - cron: "49 21 * * *"   # 23:49 Europe/Berlin (Winter UTC+1 -> 22:49 UTC, Sommer UTC+2 -> 21:49 UTC)
+  workflow_dispatch:
 
 permissions:
-  contents: write   # erlaubt commit/push von state.json
+  contents: write
 
 concurrency:
-  group: level-tracker
+  group: bequiet-level-tracker
   cancel-in-progress: true
 
 jobs:
-  build:
+  run:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,26 +23,29 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
-          cache: 'pip'
-          cache-dependency-path: 'requirements.txt'
+          python-version: "3.10"
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install requests beautifulsoup4
 
-      - name: Run script
+      - name: Run level tracker
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          FORCE_ANNOUNCE_FIRST_RUN: "false"
-          SEND_TEST_MESSAGE: "false"
+          # FORCE_ANNOUNCE_FIRST_RUN: "true"   # optional: einmalig alle vorhandenen Level announcen
         run: python bequiet_tracker_level.py
 
-      - name: Commit state.json (if changed)
+      - name: Commit state + members (if changed)
         run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          changed=0
           if [ -f state.json ]; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add state.json || true
-            git diff --staged --quiet || git commit -m "Update state.json"
-            git push
+            changed=1
           fi
+          if [ -f bequiet_members.txt ]; then
+            git add bequiet_members.txt || true
+            changed=1
+          fi
+          git diff --staged --quiet || git commit -m "Update level state / members list"
+          git push || true
