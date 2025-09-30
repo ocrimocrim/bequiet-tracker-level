@@ -1,4 +1,3 @@
-# bequiet_tracker_level.py
 import os, sys, json, time
 from pathlib import Path
 import requests
@@ -75,19 +74,48 @@ def _find_netherworld_table(soup: BeautifulSoup):
             tbl = tag.find_next("table")
             if tbl:
                 return tbl
-    # Fallback: nimm die zweite Tabelle (rechte Spalte), falls Struktur abweicht
+    # Fallback: letzte Tabelle nehmen
     tables = soup.find_all("table")
-    if len(tables) >= 2:
+    if tables:
         return tables[-1]
     return None
 
-# --------- Parsen: /ranking/ (Spalten: Online | Name | Level | Job | Exp% | Guild) ---------
+# --------- Parsen: /ranking/ (Spalten: Name | Level | Job | Exp% | Guild) ---------
 def scrape_ranking_bequiet() -> dict[str, int]:
     html = fetch_html(RANKING_URL)
     soup = BeautifulSoup(html, "html.parser")
     table = _find_netherworld_table(soup)
     if not table:
         print("Ranking: Netherworld table not found", file=sys.stderr)
+        return {}
+    res: dict[str, int] = {}
+    tbody = table.find("tbody")
+    if not tbody:
+        return res
+    for tr in tbody.find_all("tr"):
+        tds = tr.find_all("td")
+        if len(tds) < 5:
+            continue
+        name  = tds[0].get_text(strip=True)
+        level = tds[1].get_text(strip=True)
+        guild = tds[4].get_text(" ", strip=True)
+        if not name:
+            continue
+        try:
+            lvl = int(level)
+        except Exception:
+            continue
+        if _is_bequiet(guild):
+            res[name] = lvl
+    return res
+
+# --------- Parsen: / (Spalten: Online | Name | Level | Job | Exp% | Guild) ---------
+def scrape_home_bequiet() -> dict[str, int]:
+    html = fetch_html(HOME_URL)
+    soup = BeautifulSoup(html, "html.parser")
+    table = _find_netherworld_table(soup)
+    if not table:
+        print("Home: Netherworld table not found", file=sys.stderr)
         return {}
     res: dict[str, int] = {}
     tbody = table.find("tbody")
@@ -110,42 +138,11 @@ def scrape_ranking_bequiet() -> dict[str, int]:
             res[name] = lvl
     return res
 
-# --------- Parsen: / (Spalten: # | Name | Level | Job | Guild) ---------
-def scrape_home_bequiet() -> dict[str, int]:
-    html = fetch_html(HOME_URL)
-    soup = BeautifulSoup(html, "html.parser")
-    table = _find_netherworld_table(soup)
-    if not table:
-        print("Home: Netherworld table not found", file=sys.stderr)
-        return {}
-    res: dict[str, int] = {}
-    tbody = table.find("tbody")
-    if not tbody:
-        return res
-    for tr in tbody.find_all("tr"):
-        # Zeilenstruktur: <th scope=row>#</th> <td>Name</td> <td>Level</td> <td><img></td> <td><img> beQuiet</td>
-        tds = tr.find_all("td")
-        if len(tds) < 4:
-            continue
-        name  = tds[0].get_text(strip=True)
-        level = tds[1].get_text(strip=True)
-        guild = tds[3].get_text(" ", strip=True)
-        if not name:
-            continue
-        try:
-            lvl = int(level)
-        except Exception:
-            continue
-        if _is_bequiet(guild):
-            res[name] = lvl
-    return res
-
 # --------- Merge & Posting ---------
 def merge_levels(*sources: dict[str, int]) -> dict[str, int]:
     merged: dict[str, int] = {}
     for src in sources:
         for n, lvl in src.items():
-            # wenn zwei Quellen unterschiedliche Level liefern, nimm den höheren (sollte selten vorkommen)
             merged[n] = max(lvl, merged.get(n, 0))
     return merged
 
@@ -160,19 +157,19 @@ def main():
 
     # 2) Mitgliederliste laden/erweitern
     members = set(load_members())
-    members |= set(current_levels.keys())  # neue beQuiet-Namen ergänzen
+    members |= set(current_levels.keys())
     if members:
         save_members(members)
 
-    # 3) Level-Ups ermitteln (nur für Spieler, die wir heute gesehen haben)
+    # 3) Level-Ups ermitteln
     ups = []
     for name, new_lvl in current_levels.items():
         old_lvl = int(known_levels.get(name, 0) or 0)
         if new_lvl > old_lvl:
             ups.append((name, old_lvl, new_lvl))
-            known_levels[name] = new_lvl  # State updaten
+            known_levels[name] = new_lvl
 
-    # 4) State speichern (auch wenn keine Ups – damit neue Namen/Levels persistieren)
+    # 4) State speichern
     state["levels"] = known_levels
     save_state(state)
 
