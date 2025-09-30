@@ -1,4 +1,5 @@
-import os, sys, json, time
+# bequiet_tracker_level.py
+import os, sys, json, time, re
 from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
@@ -9,9 +10,8 @@ RANKING_URL  = "https://pr-underworld.com/website/ranking/"
 HOME_URL     = "https://pr-underworld.com/website/"
 TIMEOUT      = 20
 
-STATE_FILE   = Path("state.json")       # speichert bekannte Level
-MEMBERS_FILE = Path("bequiet_members.txt")     # feste Mitgliedsliste (eine Zeile pro Name)
-
+STATE_FILE   = Path("state.json")                 # speichert bekannte Level
+MEMBERS_FILE = Path("bequiet_members.txt")        # eine Zeile pro Name
 WEBHOOK      = os.getenv("DISCORD_WEBHOOK_URL", "").strip()
 
 # --------- Helpers: IO / Discord ---------
@@ -52,35 +52,39 @@ def load_members() -> list[str]:
     return names
 
 def save_members(names: set[str]):
-    # stabil sortieren, Groß/Kleinschreibung erhalten, Duplicates case-insensiv filtern
     seen_ci = set()
     out = []
     for n in sorted(names, key=lambda s: s.lower()):
         key = n.lower()
-        if key in seen_ci:  # Duplikate vermeiden
+        if key in seen_ci:
             continue
         seen_ci.add(key)
         out.append(n)
     MEMBERS_FILE.write_text("\n".join(out) + "\n", encoding="utf-8")
 
-# --------- Parsen: gemeinsame Utilities ---------
+# --------- Parsen: Utilities ---------
 def _is_bequiet(text: str) -> bool:
     return GUILD_NAME.lower() in text.lower()
 
+def _digits_only(s: str) -> bool:
+    return bool(re.fullmatch(r"\d+", s.strip()))
+
 def _find_netherworld_table(soup: BeautifulSoup):
-    # Suche nach einer Überschrift mit "Netherworld" und nimm die nächste Tabelle
+    # Suche nach Überschrift "Netherworld", nimm die nächste Tabelle
     for tag in soup.find_all(["h3", "h4", "h5", "h6"]):
         if "netherworld" in tag.get_text(strip=True).lower():
             tbl = tag.find_next("table")
             if tbl:
                 return tbl
-    # Fallback: letzte Tabelle nehmen
+    # Fallback: letzte Tabelle (rechte Spalte)
     tables = soup.find_all("table")
     if tables:
         return tables[-1]
     return None
 
-# --------- Parsen: /ranking/ (Spalten: Name | Level | Job | Exp% | Guild) ---------
+# --------- Parsen: /ranking/
+# Layout laut Seite:
+# th | [td Online] | [td Name] | [td Level] | [td Job] | [td Exp%] | [td Guild]
 def scrape_ranking_bequiet() -> dict[str, int]:
     html = fetch_html(RANKING_URL)
     soup = BeautifulSoup(html, "html.parser")
@@ -92,24 +96,49 @@ def scrape_ranking_bequiet() -> dict[str, int]:
     tbody = table.find("tbody")
     if not tbody:
         return res
+
     for tr in tbody.find_all("tr"):
         tds = tr.find_all("td")
-        if len(tds) < 5:
+        if not tds:
             continue
-        name  = tds[0].get_text(strip=True)
-        level = tds[1].get_text(strip=True)
-        guild = tds[4].get_text(" ", strip=True)
-        if not name:
+
+        name = level_text = guild_text = ""
+
+        # Hauptlayout mit Online-Spalte (6 tds)
+        if len(tds) >= 6:
+            name = tds[1].get_text(strip=True)
+            level_text = tds[2].get_text(strip=True)
+            guild_text = tds[5].get_text(" ", strip=True)
+        # Eventueller Alt/Fallback ohne Online-Spalte (5 tds)
+        elif len(tds) >= 5:
+            name = tds[0].get_text(strip=True)
+            level_text = tds[1].get_text(strip=True)
+            guild_text = tds[4].get_text(" ", strip=True)
+        else:
+            # letzter Fallback: nimm die erste ganzzahlige Zelle als Level,
+            # und setze Name/Guild heuristisch
+            lvl_idx = next((i for i, td in enumerate(tds) if _digits_only(td.get_text(strip=True))), None)
+            if lvl_idx is None:
+                continue
+            level_text = tds[lvl_idx].get_text(strip=True)
+            # Name typischerweise links daneben
+            if lvl_idx - 1 >= 0:
+                name = tds[lvl_idx - 1].get_text(strip=True)
+            # Gilde meist ganz rechts
+            guild_text = tds[-1].get_text(" ", strip=True)
+
+        if not name or not _digits_only(level_text):
             continue
-        try:
-            lvl = int(level)
-        except Exception:
+        if not _is_bequiet(guild_text):
             continue
-        if _is_bequiet(guild):
-            res[name] = lvl
+
+        res[name] = int(level_text)
+
     return res
 
-# --------- Parsen: / (Spalten: Online | Name | Level | Job | Exp% | Guild) ---------
+# --------- Parsen: Startseite /
+# Layout laut Seite:
+# th | [td Name] | [td Level] | [td Job] | [td Guild]
 def scrape_home_bequiet() -> dict[str, int]:
     html = fetch_html(HOME_URL)
     soup = BeautifulSoup(html, "html.parser")
@@ -121,74 +150,27 @@ def scrape_home_bequiet() -> dict[str, int]:
     tbody = table.find("tbody")
     if not tbody:
         return res
+
     for tr in tbody.find_all("tr"):
         tds = tr.find_all("td")
-        if len(tds) < 6:
+        if not tds:
             continue
-        name  = tds[1].get_text(strip=True)
-        level = tds[2].get_text(strip=True)
-        guild = tds[5].get_text(" ", strip=True)
-        if not name:
-            continue
-        try:
-            lvl = int(level)
-        except Exception:
-            continue
-        if _is_bequiet(guild):
-            res[name] = lvl
-    return res
 
-# --------- Merge & Posting ---------
-def merge_levels(*sources: dict[str, int]) -> dict[str, int]:
-    merged: dict[str, int] = {}
-    for src in sources:
-        for n, lvl in src.items():
-            merged[n] = max(lvl, merged.get(n, 0))
-    return merged
+        name = level_text = guild_text = ""
 
-def main():
-    state = load_state()
-    known_levels: dict[str, int] = state.get("levels", {})
+        # erwartetes Layout (4 tds)
+        if len(tds) >= 4:
+            name = tds[0].get_text(strip=True)
+            level_text = tds[1].get_text(strip=True)
+            guild_text = tds[3].get_text(" ", strip=True)
+        else:
+            # Fallback: finde Level-Zelle
+            lvl_idx = next((i for i, td in enumerate(tds) if _digits_only(td.get_text(strip=True))), None)
+            if lvl_idx is None:
+                continue
+            level_text = tds[lvl_idx].get_text(strip=True)
+            if lvl_idx - 1 >= 0:
+                name = tds[lvl_idx - 1].get_text(strip=True)
+            guild_text = tds[-1].get_text(" ", strip=True)
 
-    # 1) Scrapen beider Quellen
-    levels_ranking = scrape_ranking_bequiet()
-    levels_home    = scrape_home_bequiet()
-    current_levels = merge_levels(levels_ranking, levels_home)
-
-    # 2) Mitgliederliste laden/erweitern
-    members = set(load_members())
-    members |= set(current_levels.keys())
-    if members:
-        save_members(members)
-
-    # 3) Level-Ups ermitteln
-    ups = []
-    for name, new_lvl in current_levels.items():
-        old_lvl = int(known_levels.get(name, 0) or 0)
-        if new_lvl > old_lvl:
-            ups.append((name, old_lvl, new_lvl))
-            known_levels[name] = new_lvl
-
-    # 4) State speichern
-    state["levels"] = known_levels
-    save_state(state)
-
-    # 5) Discord-Post nur bei Level-Ups
-    if ups:
-        ups.sort(key=lambda x: (x[2] - x[1], x[2], x[0].lower()), reverse=True)
-        today = time.strftime("%Y-%m-%d")
-        lines = [f"**beQuiet – Level-Ups** ({today})"]
-        for name, old_lvl, new_lvl in ups:
-            arrow = f"{old_lvl} → {new_lvl}" if old_lvl > 0 else f"neu erfasst: {new_lvl}"
-            lines.append(f"• **{name}** — {arrow}")
-        content = "\n".join(lines)
-        post_to_discord(content)
-    else:
-        print("No level-ups today.")
-
-if __name__ == "__main__":
-    try:
-        main()
-    except Exception as e:
-        print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
+        if not name
