@@ -1,5 +1,4 @@
-# bequiet_tracker_level.py
-import os, sys, json, time, re
+import os, sys, json, time, re, random
 from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
@@ -12,6 +11,7 @@ TIMEOUT      = 20
 
 STATE_FILE   = Path("state.json")                 # speichert bekannte Level
 MEMBERS_FILE = Path("bequiet_members.txt")        # eine Zeile pro Name
+LEVELUP_TEXTS_FILE = Path("levelup_texts.txt")    # neue Datei für Sprüche
 WEBHOOK      = os.getenv("DISCORD_WEBHOOK_URL", "").strip()
 
 # --------- Helpers: IO / Discord ---------
@@ -62,6 +62,15 @@ def save_members(names: set[str]):
         out.append(n)
     MEMBERS_FILE.write_text("\n".join(out) + "\n", encoding="utf-8")
 
+# --------- Levelup Sprüche ---------
+def pick_levelup_text() -> str:
+    if LEVELUP_TEXTS_FILE.exists():
+        lines = [ln.strip() for ln in LEVELUP_TEXTS_FILE.read_text(encoding="utf-8").splitlines() if ln.strip()]
+        if lines:
+            return random.choice(lines)
+    # Fallback falls Datei fehlt oder leer
+    return "hat ein neues Level erreicht!"
+
 # --------- Parsen: Utilities ---------
 def _is_bequiet(text: str) -> bool:
     return GUILD_NAME.lower() in text.lower()
@@ -76,14 +85,13 @@ def _find_netherworld_table(soup: BeautifulSoup):
             tbl = tag.find_next("table")
             if tbl:
                 return tbl
-    # Fallback: letzte Tabelle (rechte Spalte)
+    # Fallback: letzte Tabelle
     tables = soup.find_all("table")
     if tables:
         return tables[-1]
     return None
 
 # --------- Parsen: /ranking/
-# Layout laut Seite:
 # th | [td Online] | [td Name] | [td Level] | [td Job] | [td Exp%] | [td Guild]
 def scrape_ranking_bequiet() -> dict[str, int]:
     html = fetch_html(RANKING_URL)
@@ -104,27 +112,22 @@ def scrape_ranking_bequiet() -> dict[str, int]:
 
         name = level_text = guild_text = ""
 
-        # Hauptlayout mit Online-Spalte (6 tds)
+        # Hauptlayout mit Online-Spalte
         if len(tds) >= 6:
             name = tds[1].get_text(strip=True)
             level_text = tds[2].get_text(strip=True)
             guild_text = tds[5].get_text(" ", strip=True)
-        # Eventueller Alt/Fallback ohne Online-Spalte (5 tds)
         elif len(tds) >= 5:
             name = tds[0].get_text(strip=True)
             level_text = tds[1].get_text(strip=True)
             guild_text = tds[4].get_text(" ", strip=True)
         else:
-            # letzter Fallback: nimm die erste ganzzahlige Zelle als Level,
-            # und setze Name/Guild heuristisch
             lvl_idx = next((i for i, td in enumerate(tds) if _digits_only(td.get_text(strip=True))), None)
             if lvl_idx is None:
                 continue
             level_text = tds[lvl_idx].get_text(strip=True)
-            # Name typischerweise links daneben
             if lvl_idx - 1 >= 0:
                 name = tds[lvl_idx - 1].get_text(strip=True)
-            # Gilde meist ganz rechts
             guild_text = tds[-1].get_text(" ", strip=True)
 
         if not name or not _digits_only(level_text):
@@ -137,7 +140,6 @@ def scrape_ranking_bequiet() -> dict[str, int]:
     return res
 
 # --------- Parsen: Startseite /
-# Layout laut Seite:
 # th | [td Name] | [td Level] | [td Job] | [td Guild]
 def scrape_home_bequiet() -> dict[str, int]:
     html = fetch_html(HOME_URL)
@@ -158,13 +160,11 @@ def scrape_home_bequiet() -> dict[str, int]:
 
         name = level_text = guild_text = ""
 
-        # erwartetes Layout (4 tds)
         if len(tds) >= 4:
             name = tds[0].get_text(strip=True)
             level_text = tds[1].get_text(strip=True)
             guild_text = tds[3].get_text(" ", strip=True)
         else:
-            # Fallback: finde Level-Zelle
             lvl_idx = next((i for i, td in enumerate(tds) if _digits_only(td.get_text(strip=True))), None)
             if lvl_idx is None:
                 continue
@@ -199,18 +199,28 @@ def main():
     levels_home    = scrape_home_bequiet()
     current_levels = merge_levels(levels_ranking, levels_home)
 
-    # 2) Mitgliederliste erweitern
-    members = set(load_members())
-    members |= set(current_levels.keys())
-    if members:
-        save_members(members)
+    # 2) Mitgliederliste erweitern und Neuzugänge melden
+    existing_members_list = load_members()
+    existing_members = set(existing_members_list)
+    existing_ci = {n.lower() for n in existing_members_list}
+
+    found_now = set(current_levels.keys())
+    new_members = sorted([n for n in found_now if n.lower() not in existing_ci], key=lambda s: s.lower())
+
+    all_members = existing_members | found_now
+    if all_members:
+        save_members(all_members)
+
+    if new_members:
+        post_to_discord("🧭 Neue beQuiet Mitglieder aufgenommen " + ", ".join(new_members))
+        print("New members detected " + ", ".join(new_members))
 
     # 3) Level-Ups ermitteln
     ups = []
     for name, new_lvl in current_levels.items():
         old_raw = known_levels.get(name, 0)
         try:
-            old_lvl = int(old_raw or 0)  # None -> 0
+            old_lvl = int(old_raw or 0)
         except Exception:
             old_lvl = 0
         if new_lvl > old_lvl:
@@ -221,11 +231,12 @@ def main():
     state["levels"] = known_levels
     save_state(state)
 
-    # 5) Discord-Post nur bei Level-Ups
+    # 5) Discord-Post bei Level-Ups
     if ups:
         ups.sort(key=lambda x: (x[2] - x[1], x[2], x[0].lower()), reverse=True)
         today = time.strftime("%Y-%m-%d")
-        lines = [f"**beQuiet – Level-Ups** ({today})"]
+        spruch = pick_levelup_text()
+        lines = [f"**beQuiet – Level-Ups** ({today})", f"_{spruch}_"]
         for name, old_lvl, new_lvl in ups:
             arrow = f"{old_lvl} → {new_lvl}" if old_lvl > 0 else f"neu erfasst: {new_lvl}"
             lines.append(f"• **{name}** — {arrow}")
