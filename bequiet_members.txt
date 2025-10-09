@@ -5,6 +5,7 @@ Amogus
 Arcana
 Arishem
 Ashlee
+Auralion
 Aynne
 bahatorix
 Beast
@@ -36,7 +37,7 @@ French
 GeorgeFloyd
 Godlike
 Grez
-gumba
+Gumba
 Haybazu
 Helashock
 Iverine
@@ -56,6 +57,7 @@ Mirmo
 myria
 Mysako
 nagato
+Nalah
 nemesys
 nobuyuki
 OgGacek
@@ -81,6 +83,7 @@ TheFool
 TLKkillbot
 Tookie
 Ultraviolent
+Unity
 Untu
 wannahaveitall
 Wodjin
