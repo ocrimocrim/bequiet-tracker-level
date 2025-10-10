@@ -2,7 +2,7 @@ name: beQuiet Level Tracker
 
 on:
   schedule:
-    - cron: "49 21 * * *"   # 23:49 Europe/Berlin (Winter UTC+1 -> 22:49 UTC, Sommer UTC+2 -> 21:49 UTC)
+    - cron: "49 */3 * * *"   # alle 3 Stunden um :49 UTC
   workflow_dispatch:
 
 permissions:
@@ -31,7 +31,7 @@ jobs:
       - name: Run level tracker
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          # FORCE_ANNOUNCE_FIRST_RUN: "true"   # optional: einmalig alle vorhandenen Level announcen
+          # FORCE_ANNOUNCE_FIRST_RUN: "true"   # optional einmalig alle vorhandenen Level announcen
         run: python bequiet_tracker_level.py
 
       - name: Commit state + members (if changed)
