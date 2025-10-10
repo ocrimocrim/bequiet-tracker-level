@@ -13,6 +13,7 @@ Beef
 blackeye
 bosteeen
 bosteen
+Bricks
 Briefkarsten
 chachi
 Chat
@@ -91,7 +92,7 @@ xxxxx
 XXXxxXXX
 Yatokage
 yoshiyuki
-yuiy
+Yuiy
 zemm
 Zeph
 zitrus
