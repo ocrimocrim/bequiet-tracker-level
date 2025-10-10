@@ -1,5 +1,7 @@
 import os, sys, json, time, re, random
 from pathlib import Path
+from datetime import datetime
+from zoneinfo import ZoneInfo
 import requests
 from bs4 import BeautifulSoup
 
@@ -9,10 +11,12 @@ RANKING_URL  = "https://pr-underworld.com/website/ranking/"
 HOME_URL     = "https://pr-underworld.com/website/"
 TIMEOUT      = 20
 
-STATE_FILE   = Path("state.json")                 # speichert bekannte Level
+STATE_FILE   = Path("state.json")                 # speichert bekannte Level und Metadaten
 MEMBERS_FILE = Path("bequiet_members.txt")        # eine Zeile pro Name
-LEVELUP_TEXTS_FILE = Path("levelup_texts.txt")    # neue Datei für Sprüche
+LEVELUP_TEXTS_FILE = Path("levelup_texts.txt")    # optionale Datei für Sprüche
 WEBHOOK      = os.getenv("DISCORD_WEBHOOK_URL", "").strip()
+TZ           = ZoneInfo("Europe/Berlin")
+FORCE_ANNOUNCE_FIRST_RUN = os.getenv("FORCE_ANNOUNCE_FIRST_RUN", "").strip().lower() in {"1", "true", "yes", "on"}
 
 # --------- Helpers: IO / Discord ---------
 def fetch_html(url: str) -> str:
@@ -36,7 +40,10 @@ def load_state():
             return json.loads(STATE_FILE.read_text(encoding="utf-8"))
         except Exception:
             pass
-    return {"levels": {}}  # name -> last_known_level (int)
+    # levels         aktueller Stand pro Name
+    # baseline       Snapshot vom letzten Tagespost
+    # last_post_date Datum des letzten Tagesposts im Europa-Berlin-Kalender
+    return {"levels": {}, "baseline": {}, "last_post_date": ""}
 
 def save_state(state):
     STATE_FILE.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -68,7 +75,6 @@ def pick_levelup_text() -> str:
         lines = [ln.strip() for ln in LEVELUP_TEXTS_FILE.read_text(encoding="utf-8").splitlines() if ln.strip()]
         if lines:
             return random.choice(lines)
-    # Fallback falls Datei fehlt oder leer
     return "hat ein neues Level erreicht!"
 
 # --------- Parsen: Utilities ---------
@@ -190,9 +196,19 @@ def merge_levels(*sources: dict[str, int]) -> dict[str, int]:
             merged[n] = max(lvl, merged.get(n, 0))
     return merged
 
+def diff_ups(baseline: dict[str, int], current: dict[str, int]):
+    ups = []
+    for name, new_lvl in current.items():
+        old_lvl = int(baseline.get(name, 0) or 0)
+        if new_lvl > old_lvl:
+            ups.append((name, old_lvl, new_lvl))
+    return ups
+
 def main():
     state = load_state()
     known_levels: dict[str, int] = state.get("levels", {})
+    baseline_levels: dict[str, int] = state.get("baseline", {})
+    last_post_date: str = state.get("last_post_date", "") or ""
 
     # 1) Scrapen beider Quellen
     levels_ranking = scrape_ranking_bequiet()
@@ -215,34 +231,56 @@ def main():
         post_to_discord("🧭 Neue beQuiet Mitglieder aufgenommen " + ", ".join(new_members))
         print("New members detected " + ", ".join(new_members))
 
-    # 3) Level-Ups ermitteln
-    ups = []
-    for name, new_lvl in current_levels.items():
-        old_raw = known_levels.get(name, 0)
+    # 3) Aktuellen Stand persistieren
+    #    known_levels hält immer den neuesten Stand, damit nichts verloren geht
+    for name, lvl in current_levels.items():
         try:
-            old_lvl = int(old_raw or 0)
+            prev = int(known_levels.get(name, 0) or 0)
         except Exception:
-            old_lvl = 0
-        if new_lvl > old_lvl:
-            ups.append((name, old_lvl, new_lvl))
-            known_levels[name] = new_lvl
+            prev = 0
+        if lvl > prev:
+            known_levels[name] = lvl
 
-    # 4) State speichern
     state["levels"] = known_levels
-    save_state(state)
 
-    # 5) Discord-Post bei Level-Ups
-    if ups:
-        ups.sort(key=lambda x: (x[2] - x[1], x[2], x[0].lower()), reverse=True)
-        today = time.strftime("%Y-%m-%d")
-        spruch = pick_levelup_text()
-        lines = [f"**beQuiet – Level-Ups** ({today})", f"_{spruch}_"]
-        for name, old_lvl, new_lvl in ups:
-            arrow = f"{old_lvl} → {new_lvl}" if old_lvl > 0 else f"neu erfasst: {new_lvl}"
-            lines.append(f"• **{name}** — {arrow}")
-        post_to_discord("\n".join(lines))
+    # 4) Tageslogik für Discord-Post einmal pro Tag nach Europa-Berlin-Datum
+    today_local = datetime.now(TZ).date().isoformat()
+
+    # Baseline initialisieren
+    if not baseline_levels:
+        baseline_levels = dict(known_levels)
+        state["baseline"] = baseline_levels
+        if FORCE_ANNOUNCE_FIRST_RUN:
+            last_post_date = ""  # erzwinge einmaligen Post jetzt
+        else:
+            last_post_date = today_local  # keine Flut beim ersten Lauf
+        state["last_post_date"] = last_post_date
+
+    # Prüfe, ob ein Tagespost fällig ist
+    should_post_today = last_post_date != today_local
+
+    if should_post_today:
+        ups_since_baseline = diff_ups(baseline_levels, known_levels)
+
+        if ups_since_baseline:
+            ups_since_baseline.sort(key=lambda x: (x[2] - x[1], x[2], x[0].lower()), reverse=True)
+            spruch = pick_levelup_text()
+            lines = [f"**beQuiet – Level-Ups** ({today_local})", f"_{spruch}_"]
+            for name, old_lvl, new_lvl in ups_since_baseline:
+                arrow = f"{old_lvl} → {new_lvl}" if old_lvl > 0 else f"neu erfasst: {new_lvl}"
+                lines.append(f"• **{name}** — {arrow}")
+            post_to_discord("\n".join(lines))
+        else:
+            print("No level-ups to post for today.")
+
+        # Nach dem Tagespost Baseline und Datum aktualisieren
+        state["baseline"] = dict(known_levels)
+        state["last_post_date"] = today_local
     else:
-        print("No level-ups today.")
+        print("Daily post already sent today. Accumulating changes.")
+
+    # 5) State speichern
+    save_state(state)
 
 if __name__ == "__main__":
     try:
