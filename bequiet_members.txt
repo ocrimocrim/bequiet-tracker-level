@@ -1,4 +1,5 @@
 1Klas
+AETHER
 akkun
 Albert
 Amogus
@@ -26,7 +27,7 @@ detox
 Duweiss
 ebylinia
 Ember
-endorphin
+Endorphin
 EvCeHeVcE
 evermore
 EverNight
