@@ -2,7 +2,7 @@ name: beQuiet Level Tracker
 
 on:
   schedule:
-    - cron: "49 */3 * * *"   # alle 3 Stunden um :49 UTC
+    - cron: "49 */3 * * *"   # alle 3 Stunden zur Minute 49 UTC
   workflow_dispatch:
 
 permissions:
@@ -26,26 +26,27 @@ jobs:
           python-version: "3.10"
 
       - name: Install dependencies
-        run: pip install requests beautifulsoup4
+        run: |
+          python -V
+          pip install -r requirements.txt || pip install requests beautifulsoup4
 
       - name: Run level tracker
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          # FORCE_ANNOUNCE_FIRST_RUN: "true"   # optional einmalig alle vorhandenen Level announcen
+          # FORCE_ANNOUNCE_FIRST_RUN: "true"
         run: python bequiet_tracker_level.py
 
+      # Commit immer ausführen, auch wenn der Python-Step Fehler hatte
       - name: Commit state + members (if changed)
+        if: always()
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          changed=0
           if [ -f state.json ]; then
             git add state.json || true
-            changed=1
           fi
           if [ -f bequiet_members.txt ]; then
             git add bequiet_members.txt || true
-            changed=1
           fi
           git diff --staged --quiet || git commit -m "Update level state / members list"
           git push || true
