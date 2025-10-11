@@ -34,16 +34,51 @@ def post_to_discord(content: str):
     except Exception as e:
         print(f"Discord error: {e} {getattr(r, 'text', '')}", file=sys.stderr)
 
+def _to_int_or_zero(x):
+    try:
+        if x is None:
+            return 0
+        if isinstance(x, bool):
+            return int(x)
+        if isinstance(x, (int,)):
+            return int(x)
+        s = str(x).strip()
+        if re.fullmatch(r"\d+", s):
+            return int(s)
+    except Exception:
+        pass
+    return 0
+
 def load_state():
+    # Struktur
+    state = {
+        "levels": {},             # name -> int
+        "baseline": {},           # name -> int  letzter Tages-Snapshot
+        "last_post_date": "",     # "YYYY-MM-DD" Europe/Berlin
+        "announced_members": {}   # name -> "YYYY-MM-DD"  verhindert Doppelposts
+    }
     if STATE_FILE.exists():
         try:
-            return json.loads(STATE_FILE.read_text(encoding="utf-8"))
-        except Exception:
-            pass
-    # levels         aktueller Stand pro Name
-    # baseline       Snapshot vom letzten Tagespost
-    # last_post_date Datum des letzten Tagesposts im Europa-Berlin-Kalender
-    return {"levels": {}, "baseline": {}, "last_post_date": ""}
+            raw = json.loads(STATE_FILE.read_text(encoding="utf-8"))
+            # Hygiene: alles auf Integers trimmen, None entfernen
+            for k in ("levels", "baseline"):
+                d = {}
+                for n, v in (raw.get(k) or {}).items():
+                    n2 = str(n).strip()
+                    if not n2:
+                        continue
+                    d[n2] = _to_int_or_zero(v)
+                state[k] = d
+            amd = {}
+            for n, dt in (raw.get("announced_members") or {}).items():
+                n2 = str(n).strip()
+                if n2:
+                    amd[n2] = str(dt).strip() or ""
+            state["announced_members"] = amd
+            state["last_post_date"] = str(raw.get("last_post_date") or "").strip()
+        except Exception as e:
+            print(f"State parse error: {e}", file=sys.stderr)
+    return state
 
 def save_state(state):
     STATE_FILE.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -193,26 +228,39 @@ def merge_levels(*sources: dict[str, int]) -> dict[str, int]:
     merged: dict[str, int] = {}
     for src in sources:
         for n, lvl in src.items():
-            merged[n] = max(lvl, merged.get(n, 0))
+            lvl_i = _to_int_or_zero(lvl)
+            if lvl_i <= 0:
+                continue
+            merged[n] = max(lvl_i, merged.get(n, 0))
     return merged
 
 def diff_ups(baseline: dict[str, int], current: dict[str, int]):
     ups = []
     for name, new_lvl in current.items():
-        old_lvl = int(baseline.get(name, 0) or 0)
+        old_lvl = _to_int_or_zero(baseline.get(name, 0))
         if new_lvl > old_lvl:
             ups.append((name, old_lvl, new_lvl))
     return ups
 
 def main():
     state = load_state()
-    known_levels: dict[str, int] = state.get("levels", {})
-    baseline_levels: dict[str, int] = state.get("baseline", {})
+    known_levels: dict[str, int] = {n: _to_int_or_zero(v) for n, v in state.get("levels", {}).items()}
+    baseline_levels: dict[str, int] = {n: _to_int_or_zero(v) for n, v in state.get("baseline", {}).items()}
     last_post_date: str = state.get("last_post_date", "") or ""
+    announced_members: dict[str, str] = dict(state.get("announced_members", {}))
 
     # 1) Scrapen beider Quellen
-    levels_ranking = scrape_ranking_bequiet()
-    levels_home    = scrape_home_bequiet()
+    try:
+        levels_ranking = scrape_ranking_bequiet()
+    except Exception as e:
+        print(f"Error scraping ranking: {e}", file=sys.stderr)
+        levels_ranking = {}
+    try:
+        levels_home    = scrape_home_bequiet()
+    except Exception as e:
+        print(f"Error scraping home: {e}", file=sys.stderr)
+        levels_home = {}
+
     current_levels = merge_levels(levels_ranking, levels_home)
 
     # 2) Mitgliederliste erweitern und Neuzugänge melden
@@ -221,42 +269,41 @@ def main():
     existing_ci = {n.lower() for n in existing_members_list}
 
     found_now = set(current_levels.keys())
-    new_members = sorted([n for n in found_now if n.lower() not in existing_ci], key=lambda s: s.lower())
+    # neu im Sinne der Datei
+    file_new_members = sorted([n for n in found_now if n.lower() not in existing_ci], key=lambda s: s.lower())
 
     all_members = existing_members | found_now
     if all_members:
         save_members(all_members)
 
-    if new_members:
-        post_to_discord("🧭 Neue beQuiet Mitglieder aufgenommen " + ", ".join(new_members))
-        print("New members detected " + ", ".join(new_members))
+    # Nur Namen announcen, die noch nie angekündigt wurden
+    today_local = datetime.now(TZ).date().isoformat()
+    really_new_to_announce = [n for n in file_new_members if n not in announced_members]
+
+    if really_new_to_announce:
+        post_to_discord("🧭 Neue beQuiet Mitglieder aufgenommen " + ", ".join(really_new_to_announce))
+        for n in really_new_to_announce:
+            announced_members[n] = today_local
+        print("New members announced " + ", ".join(really_new_to_announce))
+    elif file_new_members:
+        print("New members found but already announced earlier: " + ", ".join(file_new_members))
 
     # 3) Aktuellen Stand persistieren
-    #    known_levels hält immer den neuesten Stand, damit nichts verloren geht
     for name, lvl in current_levels.items():
-        try:
-            prev = int(known_levels.get(name, 0) or 0)
-        except Exception:
-            prev = 0
+        prev = _to_int_or_zero(known_levels.get(name, 0))
         if lvl > prev:
             known_levels[name] = lvl
 
     state["levels"] = known_levels
+    state["announced_members"] = announced_members
 
     # 4) Tageslogik für Discord-Post einmal pro Tag nach Europa-Berlin-Datum
-    today_local = datetime.now(TZ).date().isoformat()
-
-    # Baseline initialisieren
     if not baseline_levels:
         baseline_levels = dict(known_levels)
         state["baseline"] = baseline_levels
-        if FORCE_ANNOUNCE_FIRST_RUN:
-            last_post_date = ""  # erzwinge einmaligen Post jetzt
-        else:
-            last_post_date = today_local  # keine Flut beim ersten Lauf
-        state["last_post_date"] = last_post_date
+        state["last_post_date"] = "" if FORCE_ANNOUNCE_FIRST_RUN else today_local
 
-    # Prüfe, ob ein Tagespost fällig ist
+    last_post_date = state.get("last_post_date", "") or ""
     should_post_today = last_post_date != today_local
 
     if should_post_today:
