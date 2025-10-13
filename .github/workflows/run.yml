@@ -2,7 +2,7 @@ name: beQuiet Level Tracker
 
 on:
   schedule:
-    - cron: "49 */3 * * *"   # alle 3 Stunden zur Minute 49 UTC
+    - cron: "49 * * * *"   # jede Stunde zur Minute 49 UTC
   workflow_dispatch:
 
 permissions:
