@@ -112,7 +112,8 @@
     "Mizu": 150,
     "AntsInThePants": 162,
     "Yoshiyuki": 155,
-    "Manamy": 147
+    "Manamy": 147,
+    "xR3Dx": 53
   },
   "baseline": {
     "overlord": 0,
@@ -208,7 +209,6 @@
     "Koaa": 173,
     "TheFool": 172,
     "Arishem": 174,
-    "Gumba": 160,
     "WannaHaveItAll": 165,
     "Nalah": 161,
     "Unity": 1,
@@ -238,6 +238,8 @@
     "AntsInThePants": "2025-10-11",
     "Litus": "2025-10-11",
     "Mizu": "2025-10-11",
-    "Manamy": "2025-10-13"
+    "Manamy": "2025-10-13",
+    "Gumba": "2025-10-13",
+    "xR3Dx": "2025-10-13"
   }
 }
