@@ -113,7 +113,8 @@
     "AntsInThePants": 165,
     "Yoshiyuki": 155,
     "Manamy": 147,
-    "xR3Dx": 73
+    "xR3Dx": 73,
+    "Balmung": 113
   },
   "baseline": {
     "overlord": 0,
@@ -143,7 +144,6 @@
     "Mirmo": 0,
     "Godlike": 170,
     "LeadyDeath": 171,
-    "Gumba": 160,
     "Mysako": 170,
     "French": 0,
     "scrappycoco": 170,
@@ -209,27 +209,31 @@
     "Koaa": 173,
     "TheFool": 172,
     "Arishem": 174,
+    "Gumba": 161,
     "WannaHaveItAll": 165,
     "Nalah": 161,
     "Unity": 1,
-    "Auralion": 155,
-    "Wodjin": 169,
-    "Yuiy": 162,
-    "Bricks": 155,
+    "Auralion": 159,
+    "Wodjin": 170,
+    "Yuiy": 163,
+    "Bricks": 157,
     "Beeru": 153,
     "Endorphin": 162,
-    "AETHER": 150,
+    "AETHER": 151,
     "Ebylinia": 158,
     "Letrozol": 157,
     "Pepino": 53,
     "EINHORNERSINDROSA": 1,
     "EBLOCRUSHER": 1,
-    "Litus": 151,
+    "Litus": 152,
     "Mizu": 150,
-    "AntsInThePants": 159,
-    "Yoshiyuki": 155
+    "AntsInThePants": 165,
+    "Yoshiyuki": 155,
+    "Manamy": 147,
+    "xR3Dx": 73,
+    "Balmung": 113
   },
-  "last_post_date": "2025-10-13",
+  "last_post_date": "2025-10-14",
   "announced_members": {
     "EBLOCRUSHER": "2025-10-11",
     "EINHORNERSINDROSA": "2025-10-11",
@@ -240,6 +244,7 @@
     "Mizu": "2025-10-11",
     "Manamy": "2025-10-13",
     "Gumba": "2025-10-13",
-    "xR3Dx": "2025-10-13"
+    "xR3Dx": "2025-10-13",
+    "Balmung": "2025-10-14"
   }
 }
