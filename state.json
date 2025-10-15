@@ -96,7 +96,7 @@
     "WannaHaveItAll": 165,
     "Nalah": 161,
     "Unity": 1,
-    "Auralion": 161,
+    "Auralion": 162,
     "Wodjin": 170,
     "Yuiy": 166,
     "Bricks": 158,
@@ -116,7 +116,8 @@
     "xR3Dx": 73,
     "Balmung": 152,
     "ErsteKlasse": 175,
-    "Keksii": 152
+    "Keksii": 152,
+    "Leerooy": 71
   },
   "baseline": {
     "overlord": 0,
@@ -250,6 +251,7 @@
     "xR3Dx": "2025-10-13",
     "Balmung": "2025-10-14",
     "ErsteKlasse": "2025-10-14",
-    "Keksii": "2025-10-15"
+    "Keksii": "2025-10-15",
+    "Leerooy": "2025-10-15"
   }
 }
