@@ -96,14 +96,14 @@
     "WannaHaveItAll": 165,
     "Nalah": 162,
     "Unity": 1,
-    "Auralion": 162,
+    "Auralion": 165,
     "Wodjin": 170,
-    "Yuiy": 168,
+    "Yuiy": 169,
     "Bricks": 158,
     "Beeru": 153,
     "Endorphin": 162,
     "AETHER": 152,
-    "Ebylinia": 158,
+    "Ebylinia": 159,
     "Letrozol": 157,
     "Pepino": 53,
     "EINHORNERSINDROSA": 1,
@@ -117,9 +117,10 @@
     "Balmung": 152,
     "ErsteKlasse": 175,
     "Keksii": 154,
-    "Leerooy": 108,
+    "Leerooy": 117,
     "FentReactor": 174,
-    "Morafina": 150
+    "Morafina": 150,
+    "Undine": 8
   },
   "baseline": {
     "overlord": 0,
@@ -258,6 +259,7 @@
     "Keksii": "2025-10-15",
     "Leerooy": "2025-10-15",
     "FentReactor": "2025-10-16",
-    "Morafina": "2025-10-16"
+    "Morafina": "2025-10-16",
+    "Undine": "2025-10-16"
   }
 }
