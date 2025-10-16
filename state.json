@@ -117,7 +117,8 @@
     "Balmung": 152,
     "ErsteKlasse": 175,
     "Keksii": 152,
-    "Leerooy": 105
+    "Leerooy": 105,
+    "FentReactor": 174
   },
   "baseline": {
     "overlord": 0,
@@ -254,6 +255,7 @@
     "Balmung": "2025-10-14",
     "ErsteKlasse": "2025-10-14",
     "Keksii": "2025-10-15",
-    "Leerooy": "2025-10-15"
+    "Leerooy": "2025-10-15",
+    "FentReactor": "2025-10-16"
   }
 }
