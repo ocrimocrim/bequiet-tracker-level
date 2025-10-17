@@ -112,7 +112,7 @@
     "Mizu": 150,
     "AntsInThePants": 165,
     "Yoshiyuki": 155,
-    "Manamy": 147,
+    "Manamy": 150,
     "xR3Dx": 73,
     "Balmung": 152,
     "ErsteKlasse": 175,
@@ -120,7 +120,8 @@
     "Leerooy": 139,
     "FentReactor": 174,
     "Morafina": 150,
-    "Undine": 140
+    "Undine": 140,
+    "Kerav": 96
   },
   "baseline": {
     "overlord": 0,
@@ -263,6 +264,7 @@
     "Leerooy": "2025-10-15",
     "FentReactor": "2025-10-16",
     "Morafina": "2025-10-16",
-    "Undine": "2025-10-16"
+    "Undine": "2025-10-16",
+    "Kerav": "2025-10-17"
   }
 }
