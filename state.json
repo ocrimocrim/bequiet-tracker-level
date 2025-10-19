@@ -121,7 +121,8 @@
     "FentReactor": 174,
     "Morafina": 150,
     "Undine": 161,
-    "Kerav": 137
+    "Kerav": 137,
+    "GeorgeDroid": 171
   },
   "baseline": {
     "overlord": 0,
@@ -266,6 +267,7 @@
     "FentReactor": "2025-10-16",
     "Morafina": "2025-10-16",
     "Undine": "2025-10-16",
-    "Kerav": "2025-10-17"
+    "Kerav": "2025-10-17",
+    "GeorgeDroid": "2025-10-19"
   }
 }
