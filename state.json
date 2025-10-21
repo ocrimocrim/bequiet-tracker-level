@@ -123,7 +123,9 @@
     "Undine": 161,
     "Kerav": 150,
     "GeorgeDroid": 171,
-    "HexeDesNeuMonds": 43
+    "HexeDesNeuMonds": 43,
+    "Rassyx": 135,
+    "Soup": 93
   },
   "baseline": {
     "overlord": 0,
@@ -271,6 +273,8 @@
     "Undine": "2025-10-16",
     "Kerav": "2025-10-17",
     "GeorgeDroid": "2025-10-19",
-    "HexeDesNeuMonds": "2025-10-21"
+    "HexeDesNeuMonds": "2025-10-21",
+    "Rassyx": "2025-10-21",
+    "Soup": "2025-10-21"
   }
 }
