@@ -125,7 +125,8 @@
     "GeorgeDroid": 171,
     "HexeDesNeuMonds": 43,
     "Rassyx": 135,
-    "Soup": 93
+    "Soup": 105,
+    "Schwanger": 112
   },
   "baseline": {
     "overlord": 0,
@@ -275,6 +276,7 @@
     "GeorgeDroid": "2025-10-19",
     "HexeDesNeuMonds": "2025-10-21",
     "Rassyx": "2025-10-21",
-    "Soup": "2025-10-21"
+    "Soup": "2025-10-21",
+    "Schwanger": "2025-10-21"
   }
 }
