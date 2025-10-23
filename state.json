@@ -127,7 +127,8 @@
     "Rassyx": 135,
     "Soup": 150,
     "Schwanger": 126,
-    "Rojana": 137
+    "Rojana": 137,
+    "PrettyBlue": 147
   },
   "baseline": {
     "overlord": 0,
@@ -284,6 +285,7 @@
     "Rassyx": "2025-10-21",
     "Soup": "2025-10-21",
     "Schwanger": "2025-10-21",
-    "Rojana": "2025-10-21"
+    "Rojana": "2025-10-21",
+    "PrettyBlue": "2025-10-23"
   }
 }
