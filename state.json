@@ -10,7 +10,7 @@
     "detox": 0,
     "EverNight": 175,
     "soultamer": 0,
-    "marryme": 179,
+    "marryme": 180,
     "EwilMahsen": 161,
     "Phantoms": 181,
     "Ember": 167,
@@ -131,7 +131,8 @@
     "PrettyBlue": 150,
     "Kosabi": 119,
     "Stride": 123,
-    "Suppenkelle": 105
+    "Suppenkelle": 105,
+    "Sunraku": 75
   },
   "baseline": {
     "overlord": 0,
@@ -294,6 +295,7 @@
     "PrettyBlue": "2025-10-23",
     "Kosabi": "2025-10-23",
     "Stride": "2025-10-24",
-    "Suppenkelle": "2025-10-24"
+    "Suppenkelle": "2025-10-24",
+    "Sunraku": "2025-10-24"
   }
 }
