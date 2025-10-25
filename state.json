@@ -94,7 +94,7 @@
     "Arishem": 174,
     "Gumba": 163,
     "WannaHaveItAll": 167,
-    "Nalah": 164,
+    "Nalah": 165,
     "Unity": 4,
     "Auralion": 173,
     "Wodjin": 170,
@@ -125,15 +125,16 @@
     "GeorgeDroid": 171,
     "HexeDesNeuMonds": 43,
     "Rassyx": 135,
-    "Soup": 150,
+    "Soup": 151,
     "Schwanger": 151,
     "Rojana": 167,
     "PrettyBlue": 150,
     "Kosabi": 156,
     "Stride": 145,
     "Suppenkelle": 105,
-    "Sunraku": 112,
-    "Roots": 145
+    "Sunraku": 118,
+    "Roots": 148,
+    "Beater": 149
   },
   "baseline": {
     "overlord": 0,
@@ -301,6 +302,7 @@
     "Stride": "2025-10-24",
     "Suppenkelle": "2025-10-24",
     "Sunraku": "2025-10-24",
-    "Roots": "2025-10-25"
+    "Roots": "2025-10-25",
+    "Beater": "2025-10-25"
   }
 }
