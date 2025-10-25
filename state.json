@@ -132,7 +132,8 @@
     "Kosabi": 156,
     "Stride": 145,
     "Suppenkelle": 105,
-    "Sunraku": 100
+    "Sunraku": 100,
+    "Roots": 119
   },
   "baseline": {
     "overlord": 0,
@@ -299,6 +300,7 @@
     "Kosabi": "2025-10-23",
     "Stride": "2025-10-24",
     "Suppenkelle": "2025-10-24",
-    "Sunraku": "2025-10-24"
+    "Sunraku": "2025-10-24",
+    "Roots": "2025-10-25"
   }
 }
