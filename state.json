@@ -98,7 +98,7 @@
     "Unity": 4,
     "Auralion": 174,
     "Wodjin": 170,
-    "Yuiy": 174,
+    "Yuiy": 175,
     "Bricks": 160,
     "Beeru": 153,
     "Endorphin": 167,
@@ -127,7 +127,7 @@
     "Rassyx": 135,
     "Soup": 155,
     "Schwanger": 156,
-    "Rojana": 174,
+    "Rojana": 176,
     "PrettyBlue": 152,
     "Kosabi": 165,
     "Stride": 150,
@@ -135,7 +135,8 @@
     "Sunraku": 151,
     "Roots": 157,
     "Beater": 154,
-    "Vanesa": 152
+    "Vanesa": 152,
+    "Quark": 70
   },
   "baseline": {
     "overlord": 0,
@@ -307,6 +308,7 @@
     "Sunraku": "2025-10-24",
     "Roots": "2025-10-25",
     "Beater": "2025-10-25",
-    "Vanesa": "2025-10-28"
+    "Vanesa": "2025-10-28",
+    "Quark": "2025-10-28"
   }
 }
