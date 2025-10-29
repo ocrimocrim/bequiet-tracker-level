@@ -136,7 +136,8 @@
     "Roots": 157,
     "Beater": 156,
     "Vanesa": 153,
-    "Quark": 70
+    "Quark": 70,
+    "Xless": 86
   },
   "baseline": {
     "overlord": 0,
@@ -311,6 +312,7 @@
     "Roots": "2025-10-25",
     "Beater": "2025-10-25",
     "Vanesa": "2025-10-28",
-    "Quark": "2025-10-28"
+    "Quark": "2025-10-28",
+    "Xless": "2025-10-29"
   }
 }
