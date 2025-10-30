@@ -127,7 +127,7 @@
     "Rassyx": 135,
     "Soup": 156,
     "Schwanger": 160,
-    "Rojana": 179,
+    "Rojana": 180,
     "PrettyBlue": 152,
     "Kosabi": 166,
     "Stride": 151,
@@ -141,7 +141,8 @@
     "Nami": 150,
     "Hauge": 60,
     "FastLife": 150,
-    "HookahHunter": 116
+    "HookahHunter": 117,
+    "Diaz": 87
   },
   "baseline": {
     "overlord": 0,
@@ -322,6 +323,7 @@
     "Hauge": "2025-10-30",
     "Nami": "2025-10-30",
     "FastLife": "2025-10-30",
-    "HookahHunter": "2025-10-30"
+    "HookahHunter": "2025-10-30",
+    "Diaz": "2025-10-30"
   }
 }
