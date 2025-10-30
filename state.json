@@ -137,9 +137,10 @@
     "Beater": 156,
     "Vanesa": 153,
     "Quark": 70,
-    "Xless": 100,
-    "Nami": 114,
-    "Hauge": 7
+    "Xless": 101,
+    "Nami": 134,
+    "Hauge": 7,
+    "FastLife": 134
   },
   "baseline": {
     "overlord": 0,
@@ -318,6 +319,7 @@
     "Quark": "2025-10-28",
     "Xless": "2025-10-29",
     "Hauge": "2025-10-30",
-    "Nami": "2025-10-30"
+    "Nami": "2025-10-30",
+    "FastLife": "2025-10-30"
   }
 }
