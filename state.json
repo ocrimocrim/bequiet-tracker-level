@@ -93,7 +93,7 @@
     "TheFool": 172,
     "Arishem": 174,
     "Gumba": 163,
-    "WannaHaveItAll": 168,
+    "WannaHaveItAll": 169,
     "Nalah": 168,
     "Unity": 4,
     "Auralion": 175,
@@ -108,7 +108,7 @@
     "Pepino": 53,
     "EINHORNERSINDROSA": 1,
     "EBLOCRUSHER": 1,
-    "Litus": 161,
+    "Litus": 164,
     "Mizu": 150,
     "AntsInThePants": 175,
     "Yoshiyuki": 155,
@@ -142,7 +142,8 @@
     "Hauge": 105,
     "FastLife": 150,
     "HookahHunter": 123,
-    "Diaz": 116
+    "Diaz": 120,
+    "Grindr": 129
   },
   "baseline": {
     "overlord": 0,
@@ -324,6 +325,7 @@
     "Nami": "2025-10-30",
     "FastLife": "2025-10-30",
     "HookahHunter": "2025-10-30",
-    "Diaz": "2025-10-30"
+    "Diaz": "2025-10-30",
+    "Grindr": "2025-10-30"
   }
 }
