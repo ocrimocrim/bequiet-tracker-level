@@ -143,7 +143,8 @@
     "FastLife": 150,
     "HookahHunter": 131,
     "Diaz": 134,
-    "Grindr": 138
+    "Grindr": 138,
+    "Tempest": 36
   },
   "baseline": {
     "overlord": 0,
@@ -332,6 +333,7 @@
     "FastLife": "2025-10-30",
     "HookahHunter": "2025-10-30",
     "Diaz": "2025-10-30",
-    "Grindr": "2025-10-30"
+    "Grindr": "2025-10-30",
+    "Tempest": "2025-11-01"
   }
 }
