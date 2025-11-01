@@ -141,10 +141,11 @@
     "Nami": 169,
     "Hauge": 150,
     "FastLife": 150,
-    "HookahHunter": 133,
-    "Diaz": 136,
+    "HookahHunter": 134,
+    "Diaz": 138,
     "Grindr": 139,
-    "Tempest": 112
+    "Tempest": 112,
+    "Slayr": 18
   },
   "baseline": {
     "overlord": 0,
@@ -334,6 +335,7 @@
     "HookahHunter": "2025-10-30",
     "Diaz": "2025-10-30",
     "Grindr": "2025-10-30",
-    "Tempest": "2025-11-01"
+    "Tempest": "2025-11-01",
+    "Slayr": "2025-11-01"
   }
 }
