@@ -2,7 +2,7 @@
   "levels": {
     "overlord": 0,
     "Albert": 181,
-    "Duweiss": 176,
+    "Duweiss": 177,
     "Beast": 169,
     "Tookie": 175,
     "Korvus": 0,
@@ -134,18 +134,19 @@
     "Suppenkelle": 125,
     "Sunraku": 159,
     "Roots": 157,
-    "Beater": 159,
+    "Beater": 160,
     "Vanesa": 153,
     "Quark": 70,
     "Xless": 152,
     "Nami": 169,
     "Hauge": 155,
     "FastLife": 150,
-    "HookahHunter": 141,
+    "HookahHunter": 144,
     "Diaz": 151,
     "Grindr": 150,
     "Tempest": 112,
-    "Slayr": 18
+    "Slayr": 18,
+    "Tamr": 80
   },
   "baseline": {
     "overlord": 0,
@@ -338,6 +339,7 @@
     "Diaz": "2025-10-30",
     "Grindr": "2025-10-30",
     "Tempest": "2025-11-01",
-    "Slayr": "2025-11-01"
+    "Slayr": "2025-11-01",
+    "Tamr": "2025-11-02"
   }
 }
