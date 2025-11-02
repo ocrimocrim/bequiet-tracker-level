@@ -2,7 +2,7 @@
   "levels": {
     "overlord": 0,
     "Albert": 181,
-    "Duweiss": 177,
+    "Duweiss": 178,
     "Beast": 169,
     "Tookie": 175,
     "Korvus": 0,
@@ -110,7 +110,7 @@
     "EBLOCRUSHER": 1,
     "Litus": 170,
     "Mizu": 150,
-    "AntsInThePants": 176,
+    "AntsInThePants": 177,
     "Yoshiyuki": 155,
     "Manamy": 171,
     "xR3Dx": 73,
@@ -139,14 +139,14 @@
     "Quark": 70,
     "Xless": 152,
     "Nami": 169,
-    "Hauge": 155,
+    "Hauge": 158,
     "FastLife": 150,
     "HookahHunter": 147,
-    "Diaz": 153,
+    "Diaz": 157,
     "Grindr": 150,
     "Tempest": 112,
     "Slayr": 18,
-    "Tamr": 80
+    "Tamr": 81
   },
   "baseline": {
     "overlord": 0,
