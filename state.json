@@ -124,7 +124,7 @@
     "Kerav": 151,
     "GeorgeDroid": 171,
     "HexeDesNeuMonds": 43,
-    "Rassyx": 135,
+    "Rassyx": 140,
     "Soup": 165,
     "Schwanger": 170,
     "Rojana": 182,
@@ -147,7 +147,8 @@
     "Tempest": 112,
     "Slayr": 18,
     "Tamr": 97,
-    "Exact": 166
+    "Exact": 166,
+    "Boniface": 100
   },
   "baseline": {
     "overlord": 0,
@@ -343,6 +344,7 @@
     "Tempest": "2025-11-01",
     "Slayr": "2025-11-01",
     "Tamr": "2025-11-02",
-    "Exact": "2025-11-04"
+    "Exact": "2025-11-04",
+    "Boniface": "2025-11-04"
   }
 }
