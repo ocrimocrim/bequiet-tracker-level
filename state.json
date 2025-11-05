@@ -143,13 +143,14 @@
     "FastLife": 150,
     "HookahHunter": 150,
     "Diaz": 158,
-    "Grindr": 156,
+    "Grindr": 157,
     "Tempest": 112,
     "Slayr": 18,
     "Tamr": 98,
     "Exact": 166,
-    "Boniface": 122,
-    "Joko": 100
+    "Boniface": 125,
+    "Joko": 100,
+    "Davies": 102
   },
   "baseline": {
     "overlord": 0,
@@ -349,6 +350,7 @@
     "Tamr": "2025-11-02",
     "Exact": "2025-11-04",
     "Boniface": "2025-11-04",
-    "Joko": "2025-11-05"
+    "Joko": "2025-11-05",
+    "Davies": "2025-11-05"
   }
 }
