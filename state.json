@@ -150,7 +150,8 @@
     "Exact": 166,
     "Boniface": 142,
     "Joko": 105,
-    "Davies": 136
+    "Davies": 136,
+    "Pusteblume": 175
   },
   "baseline": {
     "overlord": 0,
@@ -353,6 +354,7 @@
     "Exact": "2025-11-04",
     "Boniface": "2025-11-04",
     "Joko": "2025-11-05",
-    "Davies": "2025-11-05"
+    "Davies": "2025-11-05",
+    "Pusteblume": "2025-11-06"
   }
 }
