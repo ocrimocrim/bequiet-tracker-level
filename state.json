@@ -152,7 +152,8 @@
     "Joko": 105,
     "Davies": 150,
     "Pusteblume": 175,
-    "Hope": 170
+    "Hope": 170,
+    "DramaLama": 69
   },
   "baseline": {
     "overlord": 0,
@@ -359,6 +360,7 @@
     "Joko": "2025-11-05",
     "Davies": "2025-11-05",
     "Pusteblume": "2025-11-06",
-    "Hope": "2025-11-06"
+    "Hope": "2025-11-06",
+    "DramaLama": "2025-11-07"
   }
 }
