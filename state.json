@@ -150,10 +150,11 @@
     "Exact": 166,
     "Boniface": 151,
     "Joko": 105,
-    "Davies": 150,
+    "Davies": 151,
     "Pusteblume": 175,
     "Hope": 170,
-    "DramaLama": 69
+    "DramaLama": 75,
+    "Hafren": 158
   },
   "baseline": {
     "overlord": 0,
@@ -361,6 +362,7 @@
     "Davies": "2025-11-05",
     "Pusteblume": "2025-11-06",
     "Hope": "2025-11-06",
-    "DramaLama": "2025-11-07"
+    "DramaLama": "2025-11-07",
+    "Hafren": "2025-11-07"
   }
 }
