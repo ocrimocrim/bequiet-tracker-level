@@ -155,7 +155,8 @@
     "Hope": 170,
     "DramaLama": 98,
     "Hafren": 167,
-    "Naturwunder": 89
+    "Naturwunder": 89,
+    "GLITCH": 131
   },
   "baseline": {
     "overlord": 0,
@@ -367,6 +368,7 @@
     "Hope": "2025-11-06",
     "DramaLama": "2025-11-07",
     "Hafren": "2025-11-07",
-    "Naturwunder": "2025-11-09"
+    "Naturwunder": "2025-11-09",
+    "GLITCH": "2025-11-09"
   }
 }
