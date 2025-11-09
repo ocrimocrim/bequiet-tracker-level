@@ -156,7 +156,8 @@
     "DramaLama": 98,
     "Hafren": 167,
     "Naturwunder": 89,
-    "GLITCH": 131
+    "GLITCH": 132,
+    "Tiri": 78
   },
   "baseline": {
     "overlord": 0,
@@ -369,6 +370,7 @@
     "DramaLama": "2025-11-07",
     "Hafren": "2025-11-07",
     "Naturwunder": "2025-11-09",
-    "GLITCH": "2025-11-09"
+    "GLITCH": "2025-11-09",
+    "Tiri": "2025-11-09"
   }
 }

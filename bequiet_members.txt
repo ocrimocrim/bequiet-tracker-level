@@ -131,6 +131,7 @@ Tank
 Tempest
 Thaito
 TheFool
+Tiri
 TLKkillbot
 Tookie
 Ultraviolent
