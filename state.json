@@ -158,7 +158,8 @@
     "Naturwunder": 150,
     "GLITCH": 146,
     "Tiri": 146,
-    "xiNN": 146
+    "xiNN": 146,
+    "Kimmich": 127
   },
   "baseline": {
     "overlord": 0,
@@ -377,6 +378,7 @@
     "Naturwunder": "2025-11-09",
     "GLITCH": "2025-11-09",
     "Tiri": "2025-11-09",
-    "xiNN": "2025-11-09"
+    "xiNN": "2025-11-09",
+    "Kimmich": "2025-11-10"
   }
 }
