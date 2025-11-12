@@ -159,7 +159,9 @@
     "GLITCH": 157,
     "Tiri": 152,
     "xiNN": 150,
-    "Kimmich": 150
+    "Kimmich": 150,
+    "darkmagic": 68,
+    "TerroBraut": 100
   },
   "baseline": {
     "overlord": 0,
@@ -380,6 +382,8 @@
     "GLITCH": "2025-11-09",
     "Tiri": "2025-11-09",
     "xiNN": "2025-11-09",
-    "Kimmich": "2025-11-10"
+    "Kimmich": "2025-11-10",
+    "darkmagic": "2025-11-12",
+    "TerroBraut": "2025-11-12"
   }
 }
