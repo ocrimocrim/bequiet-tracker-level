@@ -139,7 +139,7 @@
     "Quark": 124,
     "Xless": 160,
     "Nami": 170,
-    "Hauge": 169,
+    "Hauge": 170,
     "FastLife": 150,
     "HookahHunter": 150,
     "Diaz": 158,
@@ -161,7 +161,9 @@
     "xiNN": 150,
     "Kimmich": 150,
     "darkmagic": 70,
-    "TerroBraut": 105
+    "TerroBraut": 105,
+    "Kolly": 108,
+    "YellowBuh": 110
   },
   "baseline": {
     "overlord": 0,
@@ -384,6 +386,8 @@
     "xiNN": "2025-11-09",
     "Kimmich": "2025-11-10",
     "darkmagic": "2025-11-12",
-    "TerroBraut": "2025-11-12"
+    "TerroBraut": "2025-11-12",
+    "Kolly": "2025-11-12",
+    "YellowBuh": "2025-11-12"
   }
 }
