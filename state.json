@@ -163,7 +163,8 @@
     "darkmagic": 70,
     "TerroBraut": 108,
     "Kolly": 108,
-    "YellowBuh": 110
+    "YellowBuh": 110,
+    "Neuer": 111
   },
   "baseline": {
     "overlord": 0,
@@ -392,6 +393,7 @@
     "darkmagic": "2025-11-12",
     "TerroBraut": "2025-11-12",
     "Kolly": "2025-11-12",
-    "YellowBuh": "2025-11-12"
+    "YellowBuh": "2025-11-12",
+    "Neuer": "2025-11-14"
   }
 }
