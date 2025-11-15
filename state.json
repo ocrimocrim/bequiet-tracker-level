@@ -134,7 +134,7 @@
     "Suppenkelle": 125,
     "Sunraku": 161,
     "Roots": 157,
-    "Beater": 162,
+    "Beater": 164,
     "Vanesa": 153,
     "Quark": 124,
     "Xless": 160,
@@ -164,7 +164,8 @@
     "TerroBraut": 108,
     "Kolly": 108,
     "YellowBuh": 110,
-    "Neuer": 160
+    "Neuer": 160,
+    "Hurricane": 38
   },
   "baseline": {
     "overlord": 0,
@@ -395,6 +396,7 @@
     "TerroBraut": "2025-11-12",
     "Kolly": "2025-11-12",
     "YellowBuh": "2025-11-12",
-    "Neuer": "2025-11-14"
+    "Neuer": "2025-11-14",
+    "Hurricane": "2025-11-15"
   }
 }
