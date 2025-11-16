@@ -166,7 +166,8 @@
     "YellowBuh": 110,
     "Neuer": 160,
     "Hurricane": 112,
-    "Bersey": 180
+    "Bersey": 180,
+    "SumseBiene": 87
   },
   "baseline": {
     "overlord": 0,
@@ -400,6 +401,7 @@
     "YellowBuh": "2025-11-12",
     "Neuer": "2025-11-14",
     "Hurricane": "2025-11-15",
-    "Bersey": "2025-11-16"
+    "Bersey": "2025-11-16",
+    "SumseBiene": "2025-11-16"
   }
 }
