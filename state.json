@@ -147,7 +147,7 @@
     "Tempest": 154,
     "Slayr": 72,
     "Tamr": 103,
-    "Exact": 168,
+    "Exact": 169,
     "Boniface": 154,
     "Joko": 105,
     "Davies": 160,
@@ -157,7 +157,7 @@
     "Hafren": 168,
     "Naturwunder": 157,
     "GLITCH": 159,
-    "Tiri": 169,
+    "Tiri": 170,
     "xiNN": 154,
     "Kimmich": 150,
     "darkmagic": 70,
@@ -167,7 +167,8 @@
     "Neuer": 160,
     "Hurricane": 112,
     "Bersey": 180,
-    "SumseBiene": 94
+    "SumseBiene": 94,
+    "Algiz": 105
   },
   "baseline": {
     "overlord": 0,
@@ -404,6 +405,7 @@
     "Neuer": "2025-11-14",
     "Hurricane": "2025-11-15",
     "Bersey": "2025-11-16",
-    "SumseBiene": "2025-11-16"
+    "SumseBiene": "2025-11-16",
+    "Algiz": "2025-11-17"
   }
 }
