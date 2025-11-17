@@ -165,10 +165,11 @@
     "Kolly": 108,
     "YellowBuh": 110,
     "Neuer": 160,
-    "Hurricane": 113,
+    "Hurricane": 125,
     "Bersey": 180,
     "SumseBiene": 99,
-    "Algiz": 123
+    "Algiz": 123,
+    "Livi": 75
   },
   "baseline": {
     "overlord": 0,
@@ -406,6 +407,7 @@
     "Hurricane": "2025-11-15",
     "Bersey": "2025-11-16",
     "SumseBiene": "2025-11-16",
-    "Algiz": "2025-11-17"
+    "Algiz": "2025-11-17",
+    "Livi": "2025-11-17"
   }
 }
