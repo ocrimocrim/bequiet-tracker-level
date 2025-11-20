@@ -169,7 +169,8 @@
     "Bersey": 180,
     "SumseBiene": 123,
     "Algiz": 170,
-    "Livi": 168
+    "Livi": 168,
+    "SoloDingens": 39
   },
   "baseline": {
     "overlord": 0,
@@ -410,6 +411,7 @@
     "Bersey": "2025-11-16",
     "SumseBiene": "2025-11-16",
     "Algiz": "2025-11-17",
-    "Livi": "2025-11-17"
+    "Livi": "2025-11-17",
+    "SoloDingens": "2025-11-20"
   }
 }
