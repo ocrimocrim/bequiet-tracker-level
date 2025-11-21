@@ -171,7 +171,8 @@
     "Algiz": 177,
     "Livi": 168,
     "SoloDingens": 105,
-    "Evoken": 108
+    "Evoken": 111,
+    "Milka": 180
   },
   "baseline": {
     "overlord": 0,
@@ -415,6 +416,7 @@
     "Algiz": "2025-11-17",
     "Livi": "2025-11-17",
     "SoloDingens": "2025-11-20",
-    "Evoken": "2025-11-21"
+    "Evoken": "2025-11-21",
+    "Milka": "2025-11-21"
   }
 }
