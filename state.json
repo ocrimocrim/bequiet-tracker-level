@@ -12,7 +12,7 @@
     "soultamer": 0,
     "marryme": 183,
     "EwilMahsen": 161,
-    "Phantoms": 182,
+    "Phantoms": 183,
     "Ember": 167,
     "yuiy": 0,
     "EvCeHeVcE": 172,
@@ -170,7 +170,8 @@
     "SumseBiene": 124,
     "Algiz": 177,
     "Livi": 168,
-    "SoloDingens": 105
+    "SoloDingens": 105,
+    "Evoken": 91
   },
   "baseline": {
     "overlord": 0,
@@ -413,6 +414,7 @@
     "SumseBiene": "2025-11-16",
     "Algiz": "2025-11-17",
     "Livi": "2025-11-17",
-    "SoloDingens": "2025-11-20"
+    "SoloDingens": "2025-11-20",
+    "Evoken": "2025-11-21"
   }
 }
