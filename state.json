@@ -172,7 +172,8 @@
     "Livi": 176,
     "SoloDingens": 157,
     "Evoken": 159,
-    "Milka": 180
+    "Milka": 180,
+    "Canberro": 163
   },
   "baseline": {
     "overlord": 0,
@@ -419,6 +420,7 @@
     "Livi": "2025-11-17",
     "SoloDingens": "2025-11-20",
     "Evoken": "2025-11-21",
-    "Milka": "2025-11-21"
+    "Milka": "2025-11-21",
+    "Canberro": "2026-02-04"
   }
 }
